@@ -15,10 +15,10 @@ const {
 } = require('../controllers/users')
 
 const userRoutes = require('express').Router()
-const totalAuth = [isAuth, isOwner, isAdmin]
+const totalAuth = [isAuth, isOwner]
 userRoutes.post('/register', uploadUsers.single('avatar'), register)
 userRoutes.post('/login', login)
-userRoutes.get('/:role', isAuth, isAdmin, getUsers)
+userRoutes.get('/:role', [isAuth, isAdmin], getUsers)
 userRoutes.get('/perfil/:id', totalAuth, getUser)
 userRoutes.put(
   '/perfil/:id',

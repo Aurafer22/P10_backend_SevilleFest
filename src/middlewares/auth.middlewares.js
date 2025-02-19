@@ -15,37 +15,52 @@ const isAuth = async (req, res, next) => {
     next()
   } catch (error) {
     console.log(`Error al autorizar el acceso: ${error}`)
-    return res.status(500).json('Acceso NO AUTORIZADO')
+    return res.status(500).json('Acceso NO AUTORIZADO. No estás registrado')
   }
 }
 const isOwner = async (req, res, next) => {
   const user = req.user
   try {
-    const paramId = req.params
-    const paramIdString = paramId.toString()
+    const paramId = req.params.id
+    const userID = user._id
+    const userIdString = userID.toString()
+    // const paramIdString = paramId.toString()
+    console.log(typeof paramId)
+
+    console.log(`paramID: ${paramId}`)
+
+    // console.log(paramIdString)
+    console.log(typeof user._id)
+
+    console.log(`user.id: ${user._id}`)
+
     if (
-      paramIdString === user._id ||
-      user._id === paramId.company ||
+      paramId === userIdString ||
+      userIdString === paramId.company ||
       user.role === 'admin'
     ) {
       req.user = user
       next()
+    } else {
+      return res.status(400).json('Acceso NO AUTORIZADO. No eres propietario')
     }
   } catch (error) {
     console.log(`Error al autorizar como Propietario: ${error}`)
-    return res.status(400).json('Acceso NO AUTORIZADO')
+    return res.status(400).json('Acceso NO AUTORIZADO. No eres propietario')
   }
 }
 const isCompany = async (req, res, next) => {
   const user = req.user
   try {
-    if (user.role === 'company') {
+    if (user.role === 'company' || user.role === 'admin') {
       req.user = user
       next()
+    } else {
+      return res.status(500).json('Acceso NO AUTORIZADO. No eres empresa')
     }
   } catch (error) {
     console.log(`Error al autorizar como Company: ${error}`)
-    return res.status(500).json('Acceso NO AUTORIZADO')
+    return res.status(500).json('Acceso NO AUTORIZADO. No eres empresa')
   }
 }
 
@@ -55,10 +70,12 @@ const isAdmin = async (req, res, next) => {
     if (user.role === 'admin') {
       req.user = user
       next()
+    } else {
+      return res.status(400).json('Acceso NO AUTORIZADO. No eres administrador')
     }
   } catch (error) {
     console.log(`Error al autorizar como Admin: ${error}`)
-    return res.status(400).json('Acceso NO AUTORIZADO')
+    return res.status(400).json('Acceso NO AUTORIZADO. No eres administrador')
   }
 }
 
